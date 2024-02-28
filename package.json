@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/mocha": "^10.0.6",
+    "chai": "^4.4.1",
+    "ethers": "^6.11.1",
+    "hardhat": "^2.20.1",
+    "typechain": "^8.3.2"
+  },
+  "dependencies": {
+    "update": "^0.4.2"
+  }
+}

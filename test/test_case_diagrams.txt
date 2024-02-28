@@ -1,0 +1,56 @@
+Blockchain Ledger Overview:
+
+[Block N]---[Block N+1]---[Block N+2]---[Block N+3]---[Block N+4]---[Block N+5]
+   |            |            |            |            |            |
+   |            |            |            |            |            +-- Confirm Receipt (Batch_001)
+   |            |            |            |            |
+   |            |            |            |            +-- Update Transport (Batch_001)
+   |            |            |            |
+   |            |            |            +-- Record Harvest (Batch_001)
+   |            |            |
+   |            |            +-- Deploy MushroomSupplyChain Contract
+   |            |
+   |            +-- Assign Roles:
+   |                  Harvester: 0x70997970...
+   |                  Transporter: 0x3C44CdDd...
+   |                  Retailer: 0x90F79bf6...
+   |
+   +-- Initial Block State
+
+---------------------------------------------------------------------------------GAS EXAMPLE thing
+
+[Block N] [Gas Limit: 15,000,000]
+    TX 1: Deploy Contract (Gas: 3,000,000) [0xOwnerAddress...]
+    TX 2: Assign Harvester (Gas: 1,000,000) [0xOwnerAddress... Nonce: 1]
+    TX 3: Assign Transporter (Gas: 1,000,000) [0xOwnerAddress... Nonce: 2]
+    (Remaining gas limit reached or nonce ordering for the next transaction from the same account)
+
+[Block N+1] [Gas Limit: 15,000,000]
+    TX 4: Assign Retailer (Gas: 1,000,000) [0xOwnerAddress... Nonce: 3]
+    TX 5: Record Harvest (Gas: 500,000) [0xHarvesterAddress...]
+    (Other transactions from different users or lower gas price transactions)
+
+[Block N+2] [Gas Limit: 15,000,000]
+    TX 6: Update Transport (Gas: 500,000) [0xTransporterAddress...]
+    TX 7: Confirm Receipt (Gas: 500,000) [0xRetailerAddress...]
+    (Possible inclusion of higher gas price transactions from other users)
+-------------------------------------------------------------------------------BEHAVIOR 
+[Block N]
+- TX 0: Deploy MushroomSupplyChain Contract
+        Contract Address: 0xContractAddr...
+        Deployed By: 0xOwnerAddress...
+- TX 1: AddHarvester(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+- TX 2: AddTransporter(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC)
+- TX 3: AddRetailer(0x90F79bf6EB2c4f870365E785982E1f101E93b906)
+
+[Block N+1]
+- TX 4: RecordHarvest("BATCH_001", {From: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8})
+        State: Harvested
+
+[Block N+2]
+- TX 5: UpdateTransport("BATCH_001", {From: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC})
+        State: Transported
+
+[Block N+3]
+- TX 6: ConfirmReceipt("BATCH_001", {From: 0x90F79bf6EB2c4f870365E785982E1f101E93b906})
+        State: Received
