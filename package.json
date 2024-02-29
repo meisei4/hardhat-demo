@@ -9,9 +9,14 @@
     "chai": "^4.4.1",
     "ethers": "^6.11.1",
     "hardhat": "^2.20.1",
+    "http-server": "^14.1.1",
     "typechain": "^8.3.2"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
     "update": "^0.4.2"
+  },
+  "scripts": {
+    "serve-metadata": "http-server ./metadata -p 3000"
   }
 }

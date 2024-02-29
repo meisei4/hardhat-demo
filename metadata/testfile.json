@@ -1,0 +1,10 @@
+{
+    "name": "Mushroom NFT #1",
+    "description": "A unique mushroom NFT.",
+    "attributes": [
+        {
+            "trait_type": "Color",
+            "value": "Brown"
+        }
+    ]
+}

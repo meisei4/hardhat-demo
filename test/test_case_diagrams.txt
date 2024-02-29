@@ -8,7 +8,7 @@ Blockchain Ledger Overview:
    |            |            |            |
    |            |            |            +-- Record Harvest (Batch_001)
    |            |            |
-   |            |            +-- Deploy MushroomSupplyChain Contract
+   |            |            +-- Deploy CornSupplyChain Contract
    |            |
    |            +-- Assign Roles:
    |                  Harvester: 0x70997970...
@@ -36,7 +36,7 @@ Blockchain Ledger Overview:
     (Possible inclusion of higher gas price transactions from other users)
 -------------------------------------------------------------------------------BEHAVIOR 
 [Block N]
-- TX 0: Deploy MushroomSupplyChain Contract
+- TX 0: Deploy CornSupplyChain Contract
         Contract Address: 0xContractAddr...
         Deployed By: 0xOwnerAddress...
 - TX 1: AddHarvester(0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
@@ -54,3 +54,112 @@ Blockchain Ledger Overview:
 [Block N+3]
 - TX 6: ConfirmReceipt("BATCH_001", {From: 0x90F79bf6EB2c4f870365E785982E1f101E93b906})
         State: Received
+
+
+
+[Deployer]
+    |                         
+    |----deploys---->[MushroomCredit]
+    |                (ERC20 token contract)
+    |
+    |----deploys---->[MushroomBatchNFT]
+    |                (ERC721 token contract)
+    |
+    |----deploys---->[MushroomSupplyChain]
+                     (Supply chain logic)
+                     |     ^
+                     |     | Sets addresses for MushroomCredit and MushroomBatchNFT
+                     |     |
+                     |     '--------------+
+                     |                    |
+                     |                    |
+[Owner]              |                    |
+    |                |                    |
+    |----sets----[MushroomCredit Address] |
+    |----sets-------------[MushroomBatchNFT Address]
+    |
+    |----owns---->[MushroomSupplyChain] (Can add harvesters, transporters, retailers)
+
+[Harvester]                              [MushroomCredit]
+    |                                           |
+    |--------------recordHarvest()-------------> (Mints ERC20 tokens as a reward
+    |                                           |  for the Harvester)
+     <-----------------mint(ERC20)--------------'
+                   [MushroomBatchNFT]|  (Mints a unique NFT for the batch)
+                                     |  ^   
+                                     |  | mint(ERC721)
+                                     |  |
+                                     '->'
+
+[Transporter]                            [MushroomCredit]
+    |                                           |
+    |-------------updateTransport()------------->  (Transfers pre-funded ERC20 tokens
+    |                                           |  as a reward to Transporter)
+     <-------------trasfer(ERC20)---------------'
+
+[Retailer]
+    '-----------confirmReceipt()--------------->| (Updates batch state to Received)
+                                                |  (No ERC20 reward in this model
+                                                |   for retailer action)
+
+
+
+
+ +-------------------+
+ |     Deployer      |
+ +---------+---------+
+           |
+           +------------------------+------------------------+
+           |                        |                        |
+ +---------v---------+    +---------v---------+    +---------v----------+
+ |  MushroomCredit   |    | MushroomBatchNFT  |    | MushroomSupplyChain|
+ |  (ERC20 contract) |    |  (ERC721 contract)|    |(Supply chain logic |
+ +-------------------+    +-------------------+    | with ERC20 & ERC721|
+                                                   +--------------------+
+                                                             |
+                              +---------+            +-----------------+  
+                              |  Owner  |------------|  Set addresses  |
+                              +---------+            +-----------------+
+                                   |
+                                 ERC20 
+                                   &
+                                 ERC721
+                                   |
+                                   v
+                           +-------+---------------+
+                           |MushroomSupply-        |
+                           |Chain Management       |
+                           |(Add harv., trans.,    |
+                           | ret., update roles)   |
+                           +--------+--------------+
+                                    |
+                +-------------------+-------------------+
+                |                   |                   |
+          +-----v-----+       +-----v-----+          +-----v-----+
+          | Harvester |       |Transporter|          | Retailer  |
+          +-----------+       +-----------+          +-----------+
+              |                     |                      | 
+              |-recordHarvest()---> |--updateTransport()-->|---confirmReceipt()--->
+              |                     |                      | 
+              |----mint(ERC721)-----|---transfer(ERC20)----|
+              |----mint(ERC20)------|                      |
+
+
+
+0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+
+// ETH main net vs node vs test network
+//each network can share the addresses, but the address will have an ETH balance per network (not shared between networks)
+remix Environments are for testing with dummy eth data, that is not actually running on the main network
+// conflicts might occur if you are using test networks that others are using (addresses can cause conflict)
+
+
+Faucet - in Goerli allows for magic eth to be genenrated?
+
+
+Mainnet - offical network
+
+
+hardhat prefunds all the addresses 10000 and allows for you to choose endpoint for local (or whatever you want)
+
