@@ -9,8 +9,8 @@ const config: HardhatUserConfig = {
   },
   networks: {
     localhost: {
-      url: "http://localhost:5100", // Replace with your node's URL
-      chainId: 1337, // Replace with your chain ID
+      // url: "http://localhost:5100", // Replace with your node's URL
+      // chainId: 1337, // Replace with your chain ID
     },
   },
 };

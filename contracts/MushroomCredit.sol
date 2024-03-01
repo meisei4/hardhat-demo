@@ -3,32 +3,21 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import "hardhat/console.sol";
-
 contract MushroomCredit is ERC20 {
-    address private _supplyChainAddress;
+    mapping(address => bool) public authorizedActors;
 
-    constructor(
-        uint256 initialSupply,
-        address supplyChainAddress
-    ) ERC20("MushroomCredit", "MC") {
-        _mint(msg.sender, initialSupply);
-        _supplyChainAddress = supplyChainAddress;
+    constructor() ERC20("MushroomCredit", "MC") {}
+
+    function authorizeActor(address _actor) external {
+        authorizedActors[_actor] = true;
+    }
+    
+    function deauthorizeActor(address _actor) external {
+        authorizedActors[_actor] = false;
     }
 
-    modifier onlySupplyChain() {
-        require(
-            msg.sender == _supplyChainAddress,
-            "Only supply chain contract can mint"
-        );
-        _;
-        // console.log(
-        //     "Remaining MushroomCredit supply:",
-        //     mushroomCredit.remainingSupply()
-        // );
-    }
-
-    function mint(address to, uint256 amount) public onlySupplyChain {
+    function mint(address to, uint256 amount) external {
+        require(authorizedActors[msg.sender], "Unauthorized to mint");
         _mint(to, amount);
     }
 }

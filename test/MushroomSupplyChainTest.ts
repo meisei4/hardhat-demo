@@ -35,7 +35,6 @@ async function executeTransaction(
 describe("MushroomSupplyChain", function () {
     let owner: Signer, harvester: Signer, transporter: Signer, retailer: Signer;
     const tokenURI = "http://127.0.0.1:3000/testfile.json";
-    const initialFungibleTokenSupply = 10000
 
     let ownerAddress: string, harvesterAddress: string, transporterAddress: string, retailerAddress: string;
 
@@ -43,20 +42,22 @@ describe("MushroomSupplyChain", function () {
         console.log("Starting test setup...");
 
         // Getting signers which simulate different participants in the blockchain
-        //using actual network/addresses with hardhat node
-        //
+        // using actual network/addresses with hardhat node
+
+        const MushroomCreditFactory = await ethers.getContractFactory("MushroomCredit");
+        const mushroomCredit = await MushroomCreditFactory.deploy();
+        console.log("MushroomCredit deployed to:", mushroomCredit.getAddress());
+
+        const MushroomBatchNFTFactory = await ethers.getContractFactory("MushroomBatchNFT");
+        const mushroomBatchNFT = await MushroomBatchNFTFactory.deploy();
+        console.log("MushroomBatchNFT deployed to:", mushroomBatchNFT.getAddress());
 
         const MushroomSupplyChainFactory = await ethers.getContractFactory("MushroomSupplyChain");
         mushroomSupplyChain = await MushroomSupplyChainFactory.deploy();
         console.log("Deployed MushroomSupplyChain contract to:", mushroomSupplyChain.getAddress());
 
-        const MushroomCreditFactory = await ethers.getContractFactory("MushroomCredit");
-        const mushroomCredit = await MushroomCreditFactory.deploy(initialFungibleTokenSupply, mushroomSupplyChain.getAddress());
-        console.log("MushroomCredit deployed to:", mushroomCredit.getAddress());
-
-        const MushroomBatchNFTFactory = await ethers.getContractFactory("MushroomBatchNFT");
-        const mushroomBatchNFT = await MushroomBatchNFTFactory.deploy(mushroomSupplyChain.getAddress());
-        console.log("MushroomBatchNFT deployed to:", mushroomBatchNFT.getAddress());
+        mushroomCredit.authorizeActor(mushroomSupplyChain.getAddress());
+        mushroomBatchNFT.authorizeActor(mushroomSupplyChain.getAddress());
 
         mushroomSupplyChain.setMushroomCreditAddress(mushroomCredit.getAddress());
         mushroomSupplyChain.setMushroomBatchNFTAddress(mushroomBatchNFT.getAddress());
@@ -65,8 +66,14 @@ describe("MushroomSupplyChain", function () {
         //test network prefunds all these addresses with ETH that can be used for gas
         ownerAddress = await owner.getAddress();
         harvesterAddress = await harvester.getAddress();
+        mushroomCredit.authorizeActor(harvesterAddress);
+        mushroomBatchNFT.authorizeActor(harvesterAddress);
+
         transporterAddress = await transporter.getAddress();
+        mushroomCredit.authorizeActor(transporterAddress);
+
         retailerAddress = await retailer.getAddress();
+        // not yet authorized to mint, because they get money from selling the shrooms anyways? which is not really labor intensive
         console.log("Retrieved addresses for owner, harvester, transporter, and retailer.");
 
         const harvesterRoleTx = await mushroomSupplyChain.connect(owner).addHarvester(harvesterAddress);
@@ -94,7 +101,7 @@ describe("MushroomSupplyChain", function () {
         // ABI json in artifacts after compile is the data for deployed code
         // data field in the transaction can involve the code being sent over (not just eth being sent)
         await executeTransaction(
-            () => mushroomSupplyChain.connect(harvester).recordHarvest(harvesterAddress, batchId, tokenURI),
+            () => mushroomSupplyChain.connect(harvester).recordHarvest(batchId, tokenURI),
             0,
             batchId
         );
@@ -118,7 +125,7 @@ describe("MushroomSupplyChain", function () {
         const batchId = "UNAUTH_BATCH";
 
         console.log("Attempting to record harvest with an unauthorized signer...");
-        await expect(mushroomSupplyChain.connect(unauthorizedSigner).recordHarvest(harvesterAddress, batchId, tokenURI))
+        await expect(mushroomSupplyChain.connect(unauthorizedSigner).recordHarvest(batchId, tokenURI))
             .to.be.revertedWith("Not harvester"); // Assuming your contract reverts with this error
 
         console.log("Attempting to update transport with an unauthorized signer...");

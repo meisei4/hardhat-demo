@@ -7,30 +7,27 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract MushroomBatchNFT is ERC721URIStorage {
     using Strings for uint256;
 
-    address private _supplyChainAddress;
+    mapping(address => bool) public authorizedActors;
     uint256 private _currentTokenId = 0;
 
-    constructor(
-        address supplyChainAddress
-    ) ERC721("MushroomBatchNFT", "MBNFT") {
-        _supplyChainAddress = supplyChainAddress;
+    constructor() ERC721("MushroomBatchNFT", "MBNFT") {}
+
+    function authorizeActor(address _actor) external {
+        authorizedActors[_actor] = true;
     }
 
-    modifier onlySupplyChain() {
-        require(
-            msg.sender == _supplyChainAddress,
-            "Only supply chain contract can mint"
-        );
-        _;
+    function deauthorizeActor(address _actor) external {
+        authorizedActors[_actor] = false;
     }
 
     function mintBatchNFT(
-        address recipient,
+        address to,
         string memory newTokenURI
-    ) public onlySupplyChain returns (uint256) {
+    ) public returns (uint256) {
+        require(authorizedActors[msg.sender], "Unauthorized to mint");
         _currentTokenId += 1;
         uint256 newItemId = _currentTokenId;
-        _mint(recipient, newItemId);
+        _mint(to, newItemId);
         _setTokenURI(newItemId, newTokenURI);
         return newItemId;
     }
