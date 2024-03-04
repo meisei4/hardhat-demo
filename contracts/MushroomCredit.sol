@@ -38,5 +38,4 @@ contract MushroomCredit is ERC20 {
         LoggingUtil.logMinting("Authorized Actor", msg.sender, "MushroomCredit", address(this), to, string(abi.encodePacked("Amount: ", amount)));
         emit MushroomCreditMinted(msg.sender, to, amount);
     }
-
 }

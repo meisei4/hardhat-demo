@@ -46,5 +46,4 @@ contract MushroomBatchNFT is ERC721URIStorage {
         emit MushroomBatchNFTMinted(msg.sender, to, newItemId, newTokenURI);
         return newItemId;
     }
-
 }

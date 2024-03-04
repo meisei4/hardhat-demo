@@ -17,7 +17,7 @@ let mushroomBatchNFT: MushroomBatchNFT;
 
 describe("MushroomSupplyChain", function () {
     let owner: Signer, harvester: Signer, transporter: Signer, retailer: Signer;
-    let ownerAddress: string, harvesterAddress: string, transporterAddress: string, retailerAddress: string;
+    let harvesterAddress: string, transporterAddress: string, retailerAddress: string;
     const tokenURI = "http://127.0.0.1:3000/testfile.json";
 
     before(async function () {
@@ -47,15 +47,11 @@ describe("MushroomSupplyChain", function () {
         });
         mushroomSupplyChain = await MushroomSupplyChainFactory.deploy(mushroomCredit.target, mushroomBatchNFT.target);
 
-        //TODO: why does this have to be ran here and cant be ran in the deployment process of the supplychain
+        // TODO: why does this have to be ran here and cant be ran in the deployment process of the supplychain
         mushroomCredit.authorizeActor(mushroomSupplyChain.target);
         mushroomBatchNFT.authorizeActor(mushroomSupplyChain.target);
 
         [owner, harvester, transporter, retailer] = await ethers.getSigners();
-
-        ownerAddress = await owner.getAddress();
-        // TODO: why does the next line even need to happen if its already the owner address?
-        // mushroomSupplyChain.assignRole(ownerAddress, Role.Owner);
 
         harvesterAddress = await harvester.getAddress();
         await mushroomSupplyChain.assignRole(harvesterAddress, Role.Harvester);
@@ -72,11 +68,6 @@ describe("MushroomSupplyChain", function () {
     it("Should correctly process a batch through the supply chain", async function () {
         const batchId = "ROLE_SPECIFIC_BATCH";
 
-        // EOA: contract without code (wallet)
-        // Smart Contract: code associated along with wallet-esque storage
-        // private key is used for signing and allowing interaction back and forth (without private key the eth just gets stuck)
-        // ABI json in artifacts after compile is the data for deployed code
-        // data field in the transaction can involve the code being sent over (not just eth being sent)
         const harvestReceipt = await executeTransaction(() => mushroomSupplyChain.connect(harvester).recordHarvest(batchId, tokenURI), 0, batchId);
         logEventsAfterTransaction(mushroomSupplyChain, harvestReceipt);
 
@@ -102,7 +93,6 @@ describe("MushroomSupplyChain", function () {
     });
 });
 
-// AUXILIARY
 async function executeTransaction(
     operation: () => Promise<ContractTransactionResponse>,
     expectedState: number,
@@ -111,7 +101,7 @@ async function executeTransaction(
     const tx = await operation();
     const receipt = await tx.wait();
 
-    //TODO figure out a way to print out the prefunded eth amount
+    // TODO: figure out a way to print out the prefunded eth amount
     const gasUsed = Number(receipt?.gasUsed);
     const gasPrice = Number(tx.gasPrice);
 
@@ -129,13 +119,14 @@ async function executeTransaction(
     return receipt;
 }
 
+// TODO: only get events from offchain test (make some js server integration test)
 async function logEventsAfterTransaction(mushroomSupplyChain: MushroomSupplyChain, receipt: ContractTransactionReceipt | null) {
     if (receipt != null) {
         console.log("Events emitted during the transaction:");
         const contract = new ethers.Contract(mushroomSupplyChain.target, mushroomSupplyChain.interface, ethers.provider);
         const eventFilter = contract.filters.Transfer();
         const events = await contract.queryFilter(eventFilter, receipt.blockNumber, receipt.blockNumber);
-        // TODO: lol the events dont even exist
+        // TODO: the events dont even exist here apparently
         for (const event of events) {
             const block = await contract.getBlock(receipt.blockNumber);
             const blockTimestamp = new Date(block.timestamp * 1000).toLocaleString(); // Convert Unix timestamp to Date object and then to string

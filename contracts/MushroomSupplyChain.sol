@@ -76,13 +76,9 @@ contract MushroomSupplyChain {
         LoggingUtil.logBatchStateUpdate("Harvester", batch.harvester, "recorded harvest", "Harvested");
 
         uint256 newItemId = mushroomBatchNFT.mintBatchNFT(batch.harvester, tokenURI);
-        // below should get logged in the mint call/code itself
-        // logMinting("Harvester", batch.harvester, "MushroomBatchNFT", address(mushroomBatchNFT), batch.harvester, tokenURI);
         
         uint256 rewardAmount = 50;
         mushroomCredit.mint(batch.harvester, rewardAmount);
-        // below should get logged in the mint call/code itself
-        // logMinting("Harvester", batch.harvester, "MushroomCredit", address(mushroomCredit), batch.harvester, rewardAmount.toString());
 
         emit HarvestRecorded(batch.harvester, batchId, newItemId, block.timestamp);
     }
@@ -98,7 +94,6 @@ contract MushroomSupplyChain {
 
         uint256 rewardAmount = 10;
         mushroomCredit.mint(batch.transporter, rewardAmount);
-        // logMinting("Transporter", batch.transporter, "MushroomCredit", address(mushroomCredit), batch.transporter, rewardAmount.toString());
 
         emit TransportUpdated(batch.transporter, batchId, rewardAmount, block.timestamp);
     }
@@ -128,10 +123,6 @@ contract MushroomSupplyChain {
         LoggingUtil.logRoleAssignment(msg.sender, roleToString(_role), _actor);
         emit RoleAssigned(_actor, _role);
     }
-
-    /***********************************
-            LOGGING AND STUFF
-    ***********************************/
 
     function roleToString(Role _role) public pure returns (string memory) {
         if (_role == Role.Owner) return "Owner";
