@@ -25,19 +25,16 @@ describe("MushroomSupplyChain", function () {
 
     const MushroomCreditFactory = await ethers.getContractFactory("MushroomCredit");
     mushroomCredit = await MushroomCreditFactory.deploy();
-    const mushroomCreditAddress = await mushroomCredit.getAddress();
 
     const MushroomBatchNFTFactory = await ethers.getContractFactory("MushroomBatchNFT");
     mushroomBatchNFT = await MushroomBatchNFTFactory.deploy();
-    const mushroomBatchNFTAddress = await mushroomBatchNFT.getAddress();
 
     const MushroomSupplyChainFactory = await ethers.getContractFactory("MushroomSupplyChain");
-    mushroomSupplyChain = await MushroomSupplyChainFactory.deploy(mushroomCreditAddress, mushroomBatchNFTAddress);
-    const mushroomSupplyChainAddress = await mushroomSupplyChain.getAddress();
+    mushroomSupplyChain = await MushroomSupplyChainFactory.deploy(mushroomCredit.target, mushroomBatchNFT.target);
 
     //TODO: why does this have to be ran here and cant be ran in the deployment process of the supplychain
-    mushroomCredit.authorizeActor(mushroomSupplyChainAddress);
-    mushroomBatchNFT.authorizeActor(mushroomSupplyChainAddress);
+    mushroomCredit.authorizeActor(mushroomSupplyChain.target);
+    mushroomBatchNFT.authorizeActor(mushroomSupplyChain.target);
 
     [owner, harvester, transporter, retailer] = await ethers.getSigners();
 
@@ -66,11 +63,28 @@ describe("MushroomSupplyChain", function () {
     // private key is used for signing and allowing interaction back and forth (without private key the eth just gets stuck)
     // ABI json in artifacts after compile is the data for deployed code
     // data field in the transaction can involve the code being sent over (not just eth being sent)
-    await executeTransaction(() => mushroomSupplyChain.connect(harvester).recordHarvest(batchId, tokenURI), 0, batchId);
+    await executeTransaction(
+      () => mushroomSupplyChain.connect(harvester).recordHarvest(batchId, tokenURI),
+      0,
+      batchId,
+      mushroomSupplyChain,
+      "HarvestedRecord"
+    );
 
-    await executeTransaction(() => mushroomSupplyChain.connect(transporter).updateTransport(batchId), 1, batchId);
+    await executeTransaction(
+      () => mushroomSupplyChain.connect(transporter).updateTransport(batchId),
+      1,
+      batchId,
+      mushroomSupplyChain,
+      "HarvestedRecord"
+    );
 
-    await executeTransaction(() => mushroomSupplyChain.connect(retailer).confirmReceipt(batchId), 2, batchId);
+    await executeTransaction(() => mushroomSupplyChain.connect(retailer).confirmReceipt(batchId),
+      2,
+      batchId,
+      mushroomSupplyChain,
+      "HarvestedRecord"
+    );
   });
 
   it("Should not allow unauthorized actions", async function () {
@@ -96,6 +110,8 @@ async function executeTransaction(
   contract: Contract,
   eventName: string
 ): Promise<void> {
+  // contract.on(eventName, (data) => { logEvent() });
+
   const tx = await operation();
   const receipt = await tx.wait();
 
@@ -115,6 +131,22 @@ async function executeTransaction(
   console.log(`Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei.`);
   console.log(`Total cost: ${totalCostETH.toString()} ETH, approximately $${totalCostUSD.toString()} USD.`);
   await logEventsAfterTransaction(contract, receipt);
+
+  // TODO
+
+  // outside of blockchain or contracts events are the best way to access the blockchain stuff
+  // try using subscriptions (not in a Hardhat Test but rather just
+  // two systems: 
+  // 
+  // libaries can work across different smart contracts, 
+  //
+  // async vs callbacks with then, 
+
+  // make a simple test js server that listens to the blockchain events (like how you would access the 
+  // blockchain in a more integration testy way)
+  // 1. npx hardhat node (get remix all set up)
+  // 2. use web3js/ethers to connect to the network that remix/hardhat has spun up
+  // 3. 
 }
 
 async function logEventsAfterTransaction(contract: Contract, receipt: ContractTransactionReceipt | null) {
