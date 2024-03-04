@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Signer, ContractTransactionResponse } from "ethers";
+import { Signer, ContractTransactionResponse, ContractTransactionReceipt, Contract, EventLog, Log } from "ethers";
 import { MushroomBatchNFT, MushroomCredit, MushroomSupplyChain } from "../typechain";
 
 enum Role {
@@ -20,49 +20,41 @@ describe("MushroomSupplyChain", function () {
   let ownerAddress: string, harvesterAddress: string, transporterAddress: string, retailerAddress: string;
   const tokenURI = "http://127.0.0.1:3000/testfile.json";
 
-  beforeEach(async function () {
+  before(async function () {
     console.log("Starting test setup...");
-
-    // Getting signers which simulate different participants in the blockchain
-    // using actual network/addresses with hardhat node
-    const MushroomSupplyChainFactory = await ethers.getContractFactory("MushroomSupplyChain");
-    mushroomSupplyChain = await MushroomSupplyChainFactory.deploy();
-    console.log("Deployed MushroomSupplyChain contract to:", await mushroomSupplyChain.getAddress());
 
     const MushroomCreditFactory = await ethers.getContractFactory("MushroomCredit");
     mushroomCredit = await MushroomCreditFactory.deploy();
-    console.log("MushroomCredit deployed to:", await mushroomCredit.getAddress());
+    const mushroomCreditAddress = await mushroomCredit.getAddress();
 
     const MushroomBatchNFTFactory = await ethers.getContractFactory("MushroomBatchNFT");
     mushroomBatchNFT = await MushroomBatchNFTFactory.deploy();
-    console.log("MushroomBatchNFT deployed to:", await mushroomBatchNFT.getAddress());
+    const mushroomBatchNFTAddress = await mushroomBatchNFT.getAddress();
 
-    mushroomCredit.authorizeActor(mushroomSupplyChain.getAddress());
-    mushroomBatchNFT.authorizeActor(mushroomSupplyChain.getAddress());
+    const MushroomSupplyChainFactory = await ethers.getContractFactory("MushroomSupplyChain");
+    mushroomSupplyChain = await MushroomSupplyChainFactory.deploy(mushroomCreditAddress, mushroomBatchNFTAddress);
+    const mushroomSupplyChainAddress = await mushroomSupplyChain.getAddress();
 
-    mushroomSupplyChain.setMushroomCreditAddress(mushroomCredit.getAddress());
-    mushroomSupplyChain.setMushroomBatchNFTAddress(mushroomBatchNFT.getAddress());
+    //TODO: why does this have to be ran here and cant be ran in the deployment process of the supplychain
+    mushroomCredit.authorizeActor(mushroomSupplyChainAddress);
+    mushroomBatchNFT.authorizeActor(mushroomSupplyChainAddress);
 
     [owner, harvester, transporter, retailer] = await ethers.getSigners();
-    //test network prefunds all these addresses with ETH that can be used for gas
+
     ownerAddress = await owner.getAddress();
+    // TODO: why does the next line even need to happen if its already the owner address?
+    // mushroomSupplyChain.assignRole(ownerAddress, Role.Owner);
+
     harvesterAddress = await harvester.getAddress();
-    mushroomCredit.authorizeActor(harvesterAddress);
-    mushroomBatchNFT.authorizeActor(harvesterAddress);
+    await mushroomSupplyChain.assignRole(harvesterAddress, Role.Harvester);
 
     transporterAddress = await transporter.getAddress();
-    mushroomCredit.authorizeActor(transporterAddress);
+    await mushroomSupplyChain.assignRole(transporterAddress, Role.Transporter);
 
     retailerAddress = await retailer.getAddress();
-    // not yet authorized to mint, because they get money from selling the shrooms anyways? which is not really labor intensive
-    console.log("Retrieved addresses for owner, harvester, transporter, and retailer.");
-    console.log("Assigning roles...");
-    await Promise.all([
-      mushroomSupplyChain.assignRole(await owner.getAddress(), Role.Owner).then(() => console.log("Owner role assigned.")),
-      mushroomSupplyChain.assignRole(await harvester.getAddress(), Role.Harvester).then(() => console.log("Harvester role assigned.")),
-      mushroomSupplyChain.assignRole(await transporter.getAddress(), Role.Transporter).then(() => console.log("Transporter role assigned.")),
-      mushroomSupplyChain.assignRole(await retailer.getAddress(), Role.Retailer).then(() => console.log("Retailer role assigned.")),
-    ]);
+    await mushroomSupplyChain.assignRole(retailerAddress, Role.Retailer);
+
+    console.log("Finished test setup...");
   });
 
   it("Should correctly process a batch through the supply chain", async function () {
@@ -96,13 +88,17 @@ describe("MushroomSupplyChain", function () {
   });
 });
 
-
 // AUXILIARY
-async function executeTransaction(operation: () => Promise<ContractTransactionResponse>, expectedState: number, batchId: string): Promise<void> {
-  console.log(`Begin transaction execution for batch ID: ${batchId}...`);
-
+async function executeTransaction(
+  operation: () => Promise<ContractTransactionResponse>,
+  expectedState: number,
+  batchId: string,
+  contract: Contract,
+  eventName: string
+): Promise<void> {
   const tx = await operation();
   const receipt = await tx.wait();
+
   //TODO figure out a way to print out the prefunded eth amount
   const gasUsed = Number(receipt?.gasUsed);
   const gasPrice = Number(tx.gasPrice);
@@ -115,8 +111,36 @@ async function executeTransaction(operation: () => Promise<ContractTransactionRe
   const batch = await mushroomSupplyChain.batches(batchId);
   expect(batch.state).to.equal(expectedState);
 
-  console.log(`${operation.toString()} executed and transaction completed successfully.`);
   console.log(`Gas used: ${gasUsed.toString()} units.`);
   console.log(`Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei.`);
   console.log(`Total cost: ${totalCostETH.toString()} ETH, approximately $${totalCostUSD.toString()} USD.`);
+  await logEventsAfterTransaction(contract, receipt);
+}
+
+async function logEventsAfterTransaction(contract: Contract, receipt: ContractTransactionReceipt | null) {
+  if (receipt != null) {
+    const eventFilter = contract.filters.Transfer;
+    // only get events from the immediate blocknumber of transaction receipt
+    const events = await contract.queryFilter(eventFilter, receipt.blockNumber, receipt.blockNumber);
+    for (const event in events) {
+      const block = await contract.getBlock(receipt.blockNumber);
+      const blockTimestamp = new Date(block.timestamp * 1000).toLocaleString(); // Convert Unix timestamp to Date object and then to string
+      const message = `Event ${contract.eventName}: ${JSON.stringify(event.data)}`;
+      console.log(`[${blockTimestamp.toLocaleLowerCase()}] ${message}`);
+    }
+  }
+}
+
+async function logEventsAfterTransaction(contract: Contract, receipt: ContractTransactionReceipt, eventName: string) {
+  const eventFilter = contract.filters.Transfer;
+  // only get events from the immediate blocknumber of transaction receipt
+  const events = await contract.queryFilter(eventFilter, receipt.blockNumber, receipt.blockNumber);
+  const block = await contract.getBlock(receipt.blockNumber);
+  const blockTimestamp = new Date(block.timestamp * 1000).toLocaleString(); // Convert Unix timestamp to Date object and then to string
+
+  //never multiple events? or maybe
+  for (const event of events) {
+    const message = `Event ${eventName}: ${JSON.stringify(event.data)}`;
+    console.log(`[${blockTimestamp}] ${message}`);
+  }
 }
