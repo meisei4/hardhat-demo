@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./MushroomBatchNFT.sol";
 import "./MushroomCredit.sol";
+import "../enums/Role.sol";
 import "hardhat/console.sol";
 
 contract MushroomSupplyChain {
-    enum State {
-        Harvested,
-        Transported,
-        Received
-    }
+
+    enum State { Harvested, Transported, Received }
 
     struct Batch {
         string id;
@@ -23,132 +21,73 @@ contract MushroomSupplyChain {
     }
 
     mapping(string => Batch) public batches;
-    address public owner;
+    mapping(address => Role) public roles;
+    
     MushroomCredit public mushroomCredit;
     MushroomBatchNFT public mushroomBatchNFT;
 
-    mapping(address => bool) public harvesters;
-    mapping(address => bool) public transporters;
-    mapping(address => bool) public retailers;
-
     constructor() {
-        owner = msg.sender;
+        roles[msg.sender] = Role.Owner;
     }
 
-    function setMushroomCreditAddress(
-        address _mushroomCreditAddress
-    ) external onlyOwner {
+    function setMushroomCreditAddress( address _mushroomCreditAddress) external onlyRole(Role.Owner) {
         mushroomCredit = MushroomCredit(_mushroomCreditAddress);
     }
 
-    function setMushroomBatchNFTAddress(
-        address _mushroomBatchNFTAddress
-    ) external onlyOwner {
+    function setMushroomBatchNFTAddress(address _mushroomBatchNFTAddress) external onlyRole(Role.Owner) {
         mushroomBatchNFT = MushroomBatchNFT(_mushroomBatchNFTAddress);
     }
 
-    // TODO look into modifiers and memory writes with gas prices for operatiosn
+    // TODO look into modifiers and memory writes with gas prices for operations
     // Pure function: (only pass by reference)
     // a+b returns sum, parameters only, (doesnt not access scope outside of function, or state)
     // public: can be called within address and from external address
     // external: can be called by anyone other than the smart contract that owns 
     // view: can pretty much only view the blockchain
     // in order to send gas for another address to run the code you want it to
-    function recordHarvest(
-        string memory batchId,
-        string memory tokenURI // Metadata URI for the NFT
-    ) public onlyHarvester {
+    function recordHarvest(string memory batchId, string memory tokenURI) public onlyRole(Role.Harvester) {
         Batch storage batch = batches[batchId];
         require(batch.harvester == address(0), "Batch already recorded."); // Ensure batch hasn't been recorded already
-
-        // Log the action of recording a new batch
-        console.log("Recording new batch with ID:", batchId);
-
-        // Record the new batch
         batch.id = batchId;
         batch.harvester = msg.sender;
         batch.state = State.Harvested;
         batch.timestamp = block.timestamp;
-
-        // Mint an NFT for the harvested batch
         uint256 newItemId = mushroomBatchNFT.mintBatchNFT(msg.sender, tokenURI);
-        console.log(
-            "Minted NFT with token ID:",
-            newItemId,
-            "for batch ID:",
-            batchId
-        );
-
+        console.log("Minted NFT with token ID:", newItemId, "for batch ID:", batchId);
         uint256 rewardAmount = 50;
-        // Mint FT for rewarding the harvester Signer
         mushroomCredit.mint(msg.sender, rewardAmount);
         console.log("Minted", rewardAmount,"MushroomCredit tokens for harvester:", msg.sender);
     }
 
     // TODO: Try to make this function have a payable modifier, where it sends ETH during the TX (mint?)
-    function updateTransport(string memory batchId) public onlyTransporter {
+    function updateTransport(string memory batchId) public onlyRole(Role.Transporter) {
         Batch storage batch = batches[batchId];
         require(
             batch.state == State.Harvested,
             "Batch must be harvested first"
         );
-        console.log("Updating transport for batch ID:", batchId);
-
         batch.state = State.Transported;
-        console.log("Batch ID:", batchId, "state updated to Transported");
-
-        // Reward the transporter with ERC20 tokens
-        uint256 rewardAmount = 50; // Define reward amount appropriately
-        mushroomCredit.mint(msg.sender, rewardAmount); // Transfer tokens as reward
-        //ERC20 is separate from ether itself, just some token
+        uint256 rewardAmount = 10;
+        mushroomCredit.mint(msg.sender, rewardAmount); 
         console.log("Transferred", rewardAmount, "MushroomCredit tokens to transporter:", msg.sender);
     }
 
-    function confirmReceipt(string memory batchId) public onlyRetailer {
+    function confirmReceipt(string memory batchId) public onlyRole(Role.Retailer) {
         Batch storage batch = batches[batchId];
         require(
             batch.state == State.Transported,
             "Batch must be transported first"
         );
-        console.log("Confirming receipt for batch ID:", batchId);
-
         batch.state = State.Received;
-        console.log("Batch ID:", batchId, "state updated to Received");
-
-        // Note: No reward for retailer in this setup
-        console.log("No rewards are distributed for confirming receipt.");
     }
-    
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
+ 
+    modifier onlyRole(Role requiredRole) {
+        require(roles[msg.sender] == requiredRole, "Unauthorized role");
         _;
     }
 
-    modifier onlyHarvester() {
-        require(harvesters[msg.sender], "Not harvester");
-        _;
+    function assignRole(address _actor, Role _role) external onlyRole(Role.Owner) {
+        require(_role != Role.None, "Invalid role");
+        roles[_actor] = _role;
     }
-
-    modifier onlyTransporter() {
-        require(transporters[msg.sender], "Not transporter");
-        _;
-    }
-
-    modifier onlyRetailer() {
-        require(retailers[msg.sender], "Not retailer");
-        _;
-    }
-
-    function addHarvester(address _harvester) external onlyOwner {
-        harvesters[_harvester] = true;
-    }
-
-    function addTransporter(address _transporter) external onlyOwner {
-        transporters[_transporter] = true;
-    }
-
-    function addRetailer(address _retailer) external onlyOwner {
-        retailers[_retailer] = true;
-    }
-
 }

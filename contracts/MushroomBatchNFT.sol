@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -12,6 +12,7 @@ contract MushroomBatchNFT is ERC721URIStorage {
 
     constructor() ERC721("MushroomBatchNFT", "MBNFT") {}
 
+    // TODO: this doesnt actually authorize the Actors (Signers), it seems to only work with when Contracts are the msg.sender
     function authorizeActor(address _actor) external {
         authorizedActors[_actor] = true;
     }
@@ -20,10 +21,7 @@ contract MushroomBatchNFT is ERC721URIStorage {
         authorizedActors[_actor] = false;
     }
 
-    function mintBatchNFT(
-        address to,
-        string memory newTokenURI
-    ) public returns (uint256) {
+    function mintBatchNFT(address to, string memory newTokenURI) public returns (uint256) {
         require(authorizedActors[msg.sender], "Unauthorized to mint");
         _currentTokenId += 1;
         uint256 newItemId = _currentTokenId;
