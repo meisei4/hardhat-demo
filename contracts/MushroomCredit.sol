@@ -2,24 +2,28 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
+import "../library/LoggingUtil.sol";
 
 contract MushroomCredit is ERC20 {
+    using Strings for uint256;
 
     event ContractDeployed(address owner);
     event ActorAuthorized(address indexed actor, address owner);
     event ActorDeauthorized(address indexed actor, address owner);
     event MushroomCreditMinted(address indexed from, address indexed to, uint256 amount);
-
+    
     mapping(address => bool) public authorizedActors;
 
     constructor() ERC20("MushroomCredit", "MC") {
-        // console.log("MushroomCredit Contract deployed by Owner: %s", msg.sender);
+        LoggingUtil.logDeployment(msg.sender, "MushroomCredit", address(this));
         emit ContractDeployed(msg.sender);
     }
 
     function authorizeActor(address _actor) external {
         authorizedActors[_actor] = true;
+        LoggingUtil.logAuthorization("Owner", msg.sender, "MushroomCredit", _actor, "MushroomCredit");
         emit ActorAuthorized(_actor, msg.sender);
     }
     
@@ -31,6 +35,8 @@ contract MushroomCredit is ERC20 {
     function mint(address to, uint256 amount) external {
         require(authorizedActors[msg.sender], "Unauthorized to mint");
         _mint(to, amount);
+        LoggingUtil.logMinting("Authorized Actor", msg.sender, "MushroomCredit", address(this), to, string(abi.encodePacked("Amount: ", amount)));
         emit MushroomCreditMinted(msg.sender, to, amount);
     }
+
 }

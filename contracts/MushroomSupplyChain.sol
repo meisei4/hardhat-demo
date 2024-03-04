@@ -2,13 +2,17 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./MushroomBatchNFT.sol";
 import "./MushroomCredit.sol";
 import "../enums/Role.sol";
 import "../enums/State.sol";
 import "hardhat/console.sol";
+import "../library/LoggingUtil.sol";
 
 contract MushroomSupplyChain {
+    using Strings for uint256;
+
     event ContractDeployed(address owner);
     event HarvestRecorded(
         address indexed harvester,
@@ -49,15 +53,9 @@ contract MushroomSupplyChain {
         address _mushroomBatchNFTAddress
     ) {
         roles[msg.sender] = Role.Owner;
-        // console.log("MushroomSupplyChain Contract deployed by Owner: %s", msg.sender);
-        // TODO: all the below turn into Events and emit them
         mushroomCredit = MushroomCredit(_mushroomCreditAddress);
-        // console.log("MushroomCredit contract set to: %s by Owner: %s", _mushroomCreditAddress, msg.sender);
         mushroomBatchNFT = MushroomBatchNFT(_mushroomBatchNFTAddress);
-        // console.log("MushroomBatchNFT contract set to: %s by Owner: %s", _mushroomBatchNFTAddress, msg.sender);
-        //TODO: these two lines dont do anything, authorization must be called in the test
-        // mushroomCredit.authorizeActor(msg.sender);
-        // mushroomBatchNFT.authorizeActor(msg.sender);
+        LoggingUtil.logDeployment(msg.sender, "MushroomSupplyChain", address(this));
         emit ContractDeployed(msg.sender);
     }
 
@@ -68,52 +66,52 @@ contract MushroomSupplyChain {
         Batch storage batch = batches[batchId];
         require(batch.harvester == address(0), "Batch already recorded.");
         batch.id = batchId;
+        //TODO: this still seems strange that the actor just gets assigned the msg.sender (look at the test and how it uses:
+        // mushroomSupplyChain.connect(harvester).recordHarvest(batchId, tokenURI)
+        // how does the above work with determining "who"/which address is actually playing its designated Role etc
+
         batch.harvester = msg.sender;
-        batch.state = State.Harvested;
         batch.timestamp = block.timestamp;
+        batch.state = State.Harvested;
+        LoggingUtil.logBatchStateUpdate("Harvester", batch.harvester, "recorded harvest", "Harvested");
 
-        uint256 newItemId = mushroomBatchNFT.mintBatchNFT(msg.sender, tokenURI);
-        console.log("Harvester: %s minted NFT with token ID: %s for batch ID: %s", msg.sender, newItemId, batchId);
-
+        uint256 newItemId = mushroomBatchNFT.mintBatchNFT(batch.harvester, tokenURI);
+        // below should get logged in the mint call/code itself
+        // logMinting("Harvester", batch.harvester, "MushroomBatchNFT", address(mushroomBatchNFT), batch.harvester, tokenURI);
+        
         uint256 rewardAmount = 50;
-        mushroomCredit.mint(msg.sender, rewardAmount);
-        // console.log("Minted %s MushroomCredit tokens for Harvester: %s", rewardAmount, msg.sender);
-        emit HarvestRecorded(msg.sender, batchId, newItemId, block.timestamp);
+        mushroomCredit.mint(batch.harvester, rewardAmount);
+        // below should get logged in the mint call/code itself
+        // logMinting("Harvester", batch.harvester, "MushroomCredit", address(mushroomCredit), batch.harvester, rewardAmount.toString());
+
+        emit HarvestRecorded(batch.harvester, batchId, newItemId, block.timestamp);
     }
 
     function updateTransport(
         string memory batchId
     ) public onlyRole(Role.Transporter) {
         Batch storage batch = batches[batchId];
-        require(
-            batch.state == State.Harvested,
-            "Batch must be harvested first"
-        );
+        require(batch.state == State.Harvested, "Batch must be harvested first");
+        batch.transporter = msg.sender;
         batch.state = State.Transported;
+        LoggingUtil.logBatchStateUpdate("Transporter", batch.transporter, "updated transport", "Transported");
 
         uint256 rewardAmount = 10;
-        mushroomCredit.mint(msg.sender, rewardAmount);
-        // console.log("Transporter: %s transferred %s MushroomCredit tokens for batch ID: %s", msg.sender, rewardAmount, batchId);
+        mushroomCredit.mint(batch.transporter, rewardAmount);
+        // logMinting("Transporter", batch.transporter, "MushroomCredit", address(mushroomCredit), batch.transporter, rewardAmount.toString());
 
-        emit TransportUpdated(
-            msg.sender,
-            batchId,
-            rewardAmount,
-            block.timestamp
-        );
+        emit TransportUpdated(batch.transporter, batchId, rewardAmount, block.timestamp);
     }
 
     function confirmReceipt(
         string memory batchId
     ) public onlyRole(Role.Retailer) {
         Batch storage batch = batches[batchId];
-        require(
-            batch.state == State.Transported,
-            "Batch must be transported first"
-        );
+        require(batch.state == State.Transported, "Batch must be transported first");
+        batch.retailer = msg.sender;
         batch.state = State.Received;
-        //console.log("Retailer: %s confirmed receipt for batch ID: %s", msg.sender, batchId);
-        emit ReceiptConfirmed(msg.sender, batchId, block.timestamp);
+        LoggingUtil.logBatchStateUpdate("Retailer", batch.retailer, "confirmed receipt", "Received");
+        emit ReceiptConfirmed(batch.retailer, batchId, block.timestamp);
     }
 
     modifier onlyRole(Role requiredRole) {
@@ -121,18 +119,20 @@ contract MushroomSupplyChain {
         _;
     }
 
-    //TODO: Actor is still not the correct word here, since it can be a contract address aswell
     function assignRole(
         address _actor,
         Role _role
     ) external onlyRole(Role.Owner) {
         require(_role != Role.None, "Invalid role");
         roles[_actor] = _role;
-        // console.log("Assigned role %s to address %s", roleToString(_role), _actor);
+        LoggingUtil.logRoleAssignment(msg.sender, roleToString(_role), _actor);
         emit RoleAssigned(_actor, _role);
     }
 
-    // Example pure function
+    /***********************************
+            LOGGING AND STUFF
+    ***********************************/
+
     function roleToString(Role _role) public pure returns (string memory) {
         if (_role == Role.Owner) return "Owner";
         if (_role == Role.Harvester) return "Harvester";
