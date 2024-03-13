@@ -1,0 +1,335 @@
+ian@kanbemoenoMacBook-Pro hardhat-demo % npx hardhat test   
+
+
+  MushroomSupplyChain
+Starting test setup...
+[2024-03-26 01:29:30] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomCredit to address: 0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+[2024-03-26 01:29:31] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomBatchNFT to address: 0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0
+[2024-03-26 01:29:32] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomSupplyChain to address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+[2024-03-26 01:29:33] -- Authorizer: Owner at 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has authorized Contract/Actor: MushroomCredit (at address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) the ability to mint tokens of contract type: MushroomCredit
+[2024-03-26 01:29:34] -- Authorizer: Owner at 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has authorized Contract/Actor: MushroomBatchNFT (at address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) the ability to mint tokens of contract type: MushroomBatchNFT
+[2024-03-26 01:29:35] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Harvester to Actor at address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8, who will from now on be referred to as: Harvester
+[2024-03-26 01:29:36] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Transporter to Actor at address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc, who will from now on be referred to as: Transporter
+[2024-03-26 01:29:37] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Retailer to Actor at address 0x90f79bf6eb2c4f870365e785982e1f101e93b906, who will from now on be referred to as: Retailer
+Finished test setup...
+[2024-03-26 01:29:38] -- Harvester at 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has recorded harvest and updated the batch to state Harvested
+[2024-03-26 01:29:38] -- Authorized Minter: Authorized Actor(0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) has minted a MushroomBatchNFT(0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0) token to address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 with details http://127.0.0.1:3000/testfile.json
+[2024-03-26 01:29:38] -- Authorized Minter: Authorized Actor(0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) has minted a MushroomCredit(0xe7f1725e7734ce288f8367e1bb143e90bb3f0512) token to address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 with details Amount: 2
+Gas used: 472519 units.
+Gas price: 1.284243365 gwei.
+Total cost: 0.000606829390586435 ETH, approximately $1.8204881717593049 USD.
+Events emitted during the transaction:
+[2024-03-26 01:29:39] -- Transporter at 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has updated transport and updated the batch to state Transported
+[2024-03-26 01:29:39] -- Authorized Minter: Authorized Actor(0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) has minted a MushroomCredit(0xe7f1725e7734ce288f8367e1bb143e90bb3f0512) token to address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc with details Amount: 
+
+Gas used: 198988 units.
+Gas price: 1.249832198 gwei.
+Total cost: 0.000248701609415624 ETH, approximately $0.7461048282468721 USD.
+Events emitted during the transaction:
+[2024-03-26 01:29:40] -- Retailer at 0x90f79bf6eb2c4f870365e785982e1f101e93b906 has confirmed receipt and updated the batch to state Received
+Gas used: 94722 units.
+Gas price: 1.219017454 gwei.
+Total cost: 0.000115467771277788 ETH, approximately $0.346403313833364 USD.
+
+
+
+---------------------------------------------------NON TEST OFFCHAIN LISTENER:
+
+%                                                                                                                           
+ian@kanbemoenoMacBook-Pro hardhat-demo % npx hardhat compile
+Nothing to compile
+No need to generate any newer typings.
+ian@kanbemoenoMacBook-Pro hardhat-demo % npx hardhat node
+Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
+
+Accounts
+========
+
+WARNING: These accounts, and their private keys, are publicly known.
+Any funds sent to them on Mainnet or any other live network WILL BE LOST.
+
+Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
+Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+Account #1: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 (10000 ETH)
+Private Key: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+
+Account #2: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC (10000 ETH)
+Private Key: 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
+
+Account #3: 0x90F79bf6EB2c4f870365E785982E1f101E93b906 (10000 ETH)
+Private Key: 0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
+
+Account #4: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65 (10000 ETH)
+Private Key: 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a
+
+Account #5: 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc (10000 ETH)
+Private Key: 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
+
+Account #6: 0x976EA74026E726554dB657fA54763abd0C3a0aa9 (10000 ETH)
+Private Key: 0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e
+
+Account #7: 0x14dC79964da2C08b23698B3D3cc7Ca32193d9955 (10000 ETH)
+Private Key: 0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356
+
+Account #8: 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f (10000 ETH)
+Private Key: 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97
+
+Account #9: 0xa0Ee7A142d267C1f36714E4a8F75612F20a79720 (10000 ETH)
+Private Key: 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
+
+Account #10: 0xBcd4042DE499D14e55001CcbB24a551F3b954096 (10000 ETH)
+Private Key: 0xf214f2b2cd398c806f84e317254e0f0b801d0643303237d97a22a48e01628897
+
+Account #11: 0x71bE63f3384f5fb98995898A86B02Fb2426c5788 (10000 ETH)
+Private Key: 0x701b615bbdfb9de65240bc28bd21bbc0d996645a3dd57e7b12bc2bdf6f192c82
+
+Account #12: 0xFABB0ac9d68B0B445fB7357272Ff202C5651694a (10000 ETH)
+Private Key: 0xa267530f49f8280200edf313ee7af6b827f2a8bce2897751d06a843f644967b1
+
+Account #13: 0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec (10000 ETH)
+Private Key: 0x47c99abed3324a2707c28affff1267e45918ec8c3f20b8aa892e8b065d2942dd
+
+Account #14: 0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097 (10000 ETH)
+Private Key: 0xc526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa
+
+Account #15: 0xcd3B766CCDd6AE721141F452C550Ca635964ce71 (10000 ETH)
+Private Key: 0x8166f546bab6da521a8369cab06c5d2b9e46670292d85c875ee9ec20e84ffb61
+
+Account #16: 0x2546BcD3c84621e976D8185a91A922aE77ECEc30 (10000 ETH)
+Private Key: 0xea6c44ac03bff858b476bba40716402b03e41b8e97e276d1baec7c37d42484a0
+
+Account #17: 0xbDA5747bFD65F08deb54cb465eB87D40e51B197E (10000 ETH)
+Private Key: 0x689af8efa8c651a91ad287602527f3af2fe9f6501a7ac4b061667b5a93e037fd
+
+Account #18: 0xdD2FD4581271e230360230F9337D5c0430Bf44C0 (10000 ETH)
+Private Key: 0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0
+
+Account #19: 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199 (10000 ETH)
+Private Key: 0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e
+
+WARNING: These accounts, and their private keys, are publicly known.
+Any funds sent to them on Mainnet or any other live network WILL BE LOST.
+
+eth_accounts
+hardhat_metadata (20)
+eth_blockNumber
+eth_getBlockByNumber
+eth_feeHistory
+eth_maxPriorityFeePerGas - Method not supported
+eth_sendTransaction
+  Contract deployment: LoggingUtil
+  Contract address:    0x5fbdb2315678afecb367f032d93f642f64180aa3
+  Transaction:         0xd52ed7d71131032f5a4e467c676710a669f2c02d217a79de5856e483b73f9c65
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  Value:               0 ETH
+  Gas used:            1690447 of 30000000
+  Block #1:            0xf743805cb0d4c79713ef54490cc9db022744973062b19ff7ee4c6280c66055f2
+
+eth_getTransactionByHash
+eth_accounts
+hardhat_metadata (20)
+eth_blockNumber
+eth_feeHistory
+eth_sendTransaction
+  Contract deployment: MushroomCredit
+  Contract address:    0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+  Transaction:         0xfc1f5d701ff3cf8b4ce7774b0a30963f5b0e4349bfcf5944e5847f222df78efc
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  Value:               0 ETH
+  Gas used:            1387981 of 30000000
+  Block #2:            0x4688ee28b646df1e4bca2f7e62bebdd6956ba2af651bdc9230839156db30b7ac
+
+  console.log:
+    [2024-03-26 02:16:44] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomCredit to address: 0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+
+eth_getTransactionByHash
+eth_accounts
+hardhat_metadata (20)
+eth_blockNumber
+eth_feeHistory
+eth_sendTransaction
+  Contract deployment: MushroomBatchNFT
+  Contract address:    0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0
+  Transaction:         0xc620d6ef77e787c859d42a20395769071cb1a79a5f5a92cbe4ad50979a0a2f9e
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  Value:               0 ETH
+  Gas used:            2494099 of 30000000
+  Block #3:            0x0d502460517473e6740f4f8c5cbece886864937bf5595fbf32814efbd54b6851
+
+  console.log:
+    [2024-03-26 02:16:45] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomBatchNFT to address: 0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0
+
+eth_getTransactionByHash
+eth_accounts
+hardhat_metadata (20)
+eth_blockNumber
+eth_feeHistory
+eth_sendTransaction
+  Contract deployment: MushroomSupplyChain
+  Contract address:    0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Transaction:         0xff4f42c667a1d624868f3e53da1d2911bbe68efffde8f9397ad690a6eec42a59
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  Value:               0 ETH
+  Gas used:            2127159 of 30000000
+  Block #4:            0x41e83ff98d7f082f7b28ec2f931fc0cdfbc28209af8ade43abae3784603cd527
+
+  console.log:
+    [2024-03-26 02:16:46] -- Deployer 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has deployed a Contract: MushroomSupplyChain to address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+
+eth_getTransactionByHash
+eth_accounts
+eth_blockNumber (2)
+hardhat_metadata (18)
+eth_feeHistory
+hardhat_metadata (2)
+eth_feeHistory
+eth_sendTransaction
+  Contract call:       MushroomCredit#authorizeActor
+  Transaction:         0x5c625c7f388ffd1f63bc75a15ff80c577cec61353c089327ccd8a681cba5a767
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+  Value:               0 ETH
+  Gas used:            99336 of 30000000
+  Block #5:            0x15e5b8fe835b2cc45c93e1947e86080eaffcbf9c41c26d22f3a0ba1e781d792c
+
+  console.log:
+    [2024-03-26 02:16:47] -- Authorizer: Owner at 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has authorized Contract/Actor: MushroomCredit (at address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) the ability to mint tokens of contract type: MushroomCredit
+
+eth_blockNumber
+eth_sendTransaction
+  Contract call:       MushroomBatchNFT#authorizeActor
+  Transaction:         0xa9cc7cbbbdde5ac4e34945235ad3a060a5592655850998f57c8a0828eaeca250
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0
+  Value:               0 ETH
+  Gas used:            99336 of 30000000
+  Block #6:            0x5213c06728b62905b43e71b73cd2c2793af6f8700002cb749e476054ef2e0067
+
+  console.log:
+    [2024-03-26 02:16:48] -- Authorizer: Owner at 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has authorized Contract/Actor: MushroomBatchNFT (at address: 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) the ability to mint tokens of contract type: MushroomBatchNFT
+
+eth_getTransactionByHash
+eth_feeHistory
+eth_getTransactionByHash
+eth_sendTransaction
+  Contract call:       MushroomSupplyChain#assignRole
+  Transaction:         0x9424581f87bf953e8ce83e0ba212c3bd8d6de30fd3683988597bd38b1a957bea
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+  Gas used:            100178 of 30000000
+  Block #7:            0xaf5e52ef2f82c9005eec3adbd8f3062291cbda659e4669d7c05f01a492c5252f
+
+  console.log:
+    [2024-03-26 02:16:49] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Harvester to Actor at address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8, who will from now on be referred to as: Harvester
+
+eth_getTransactionByHash
+eth_blockNumber
+eth_feeHistory
+eth_sendTransaction
+  Contract call:       MushroomSupplyChain#assignRole
+  Transaction:         0x1e0cb4e7a558171bec0d4abbb6bf2cf6c2d641535b4e48463008fc4322fa19b3
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+  Gas used:            100241 of 30000000
+  Block #8:            0x41742b99845019f9f16f19ff4f95568fa4ce7501d0adfff32617bcf12d4a398f
+
+  console.log:
+    [2024-03-26 02:16:50] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Transporter to Actor at address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc, who will from now on be referred to as: Transporter
+
+eth_getTransactionByHash
+eth_blockNumber
+eth_feeHistory
+eth_sendTransaction
+  Contract call:       MushroomSupplyChain#assignRole
+  Transaction:         0xc20999397173cd7bedd63a33a49507db7f71f7028edeebe928bac76c1b48d6c5
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+  Gas used:            100328 of 30000000
+  Block #9:            0x7789007825b32be79501ca53acc96d48a022479c8a68970bb33f2a75dff91d53
+
+  console.log:
+    [2024-03-26 02:16:51] -- Assigner 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 has assigned Role: Retailer to Actor at address 0x90f79bf6eb2c4f870365e785982e1f101e93b906, who will from now on be referred to as: Retailer
+
+eth_getTransactionByHash
+eth_chainId
+eth_newFilter
+eth_getTransactionCount
+eth_chainId
+eth_estimateGas
+  Contract call:       MushroomSupplyChain#recordHarvest
+  From:                0x1cbd3b2770909d4e10f157cabc84c7264073c9ec
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+
+  Error: VM Exception while processing transaction: reverted with reason string 'Unauthorized role'
+      at MushroomSupplyChain.onlyRole (contracts/MushroomSupplyChain.sol:113)
+      at MushroomSupplyChain.recordHarvest (contracts/MushroomSupplyChain.sol:62)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async EthModule._estimateGasAction (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/modules/eth.ts:446:7)
+      at async HardhatNetworkProvider._sendWithLogging (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:145:22)
+      at async HardhatNetworkProvider.request (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:122:18)
+      at async JsonRpcHandler._handleRequest (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/jsonrpc/handler.ts:191:20)
+      at async JsonRpcHandler._handleSingleRequest (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/jsonrpc/handler.ts:152:17)
+      at async Promise.all (index 1)
+
+eth_getFilterChanges
+eth_blockNumber (46)
+eth_chainId
+eth_newFilter
+eth_getTransactionCount
+eth_chainId
+eth_estimateGas
+  Contract call:       MushroomSupplyChain#recordHarvest
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+
+  Error: VM Exception while processing transaction: reverted with reason string 'Unauthorized role'
+      at MushroomSupplyChain.onlyRole (contracts/MushroomSupplyChain.sol:113)
+      at MushroomSupplyChain.recordHarvest (contracts/MushroomSupplyChain.sol:62)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async EthModule._estimateGasAction (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/modules/eth.ts:446:7)
+      at async HardhatNetworkProvider._sendWithLogging (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:145:22)
+      at async HardhatNetworkProvider.request (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:122:18)
+      at async JsonRpcHandler._handleRequest (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/jsonrpc/handler.ts:191:20)
+      at async JsonRpcHandler._handleSingleRequest (/Users/ian/hardhat-demo/node_modules/hardhat/src/internal/hardhat-network/jsonrpc/handler.ts:152:17)
+      at async Promise.all (index 1)
+
+eth_getFilterChanges
+eth_blockNumber (135)
+eth_chainId
+eth_newFilter
+eth_getTransactionCount
+eth_chainId
+eth_estimateGas
+eth_getFilterChanges
+eth_chainId
+eth_blockNumber
+eth_chainId
+eth_getBlockByNumber
+eth_gasPrice
+eth_maxPriorityFeePerGas - Method not supported
+eth_sendRawTransaction
+  Contract call:       MushroomSupplyChain#recordHarvest
+  Transaction:         0xe37fc406a720e84edacc3f3d27e650bbe8f80c3ae11b8dd39f4db15b8bc40cfc
+  From:                0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+  To:                  0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9
+  Value:               0 ETH
+  Gas used:            472387 of 472387
+  Block #10:           0x2da08e86663beb947e5bc546075b5153af11e7bdabffcb77d0641b68b8673321
+
+  console.log:
+    [2024-03-26 03:17:13] -- Harvester at 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has recorded harvest and updated the batch to state Harvested
+    [2024-03-26 03:17:13] -- Authorized Minter: Authorized Actor(0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) has minted a MushroomBatchNFT(0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0) token to address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 with details http://127.0.0.1:3000/testfile.json
+    [2024-03-26 03:17:13] -- Authorized Minter: Authorized Actor(0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9) has minted a MushroomCredit(0xe7f1725e7734ce288f8367e1bb143e90bb3f0512) token to address 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 with details Amount: 2
+
+eth_chainId (2)
+eth_getTransactionReceipt
+eth_blockNumber (2)
+eth_chainId
+eth_getFilterChanges
+eth_blockNumber (6)
